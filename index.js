@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet'
 import cors from 'cors';
 import { connectDB } from "./config/db.js"
+import logger from "./helpers/logging.js";
 import authRoute from './routes/authRoute.js'
 import productRoute from './routes/productRoute.js'
 import workRoute from './routes/workRoute.js'
@@ -27,5 +28,6 @@ app.use("/api/v1/cart", cartRoute)
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  // console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`)
 });
