@@ -79,7 +79,7 @@ export async function loginUser(req, res) {
 }
 
 export async function registerAdmin(req, res) {
-  const { phoneNumber, email, password } = req.body;
+  const { username, phoneNumber, email, password } = req.body;
   const validationError = validateAdminRegistration(
     phoneNumber,
     email,
@@ -103,6 +103,7 @@ export async function registerAdmin(req, res) {
     const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
 
     const admin = new Auth({
+      username: username,
       email: email,
       password: hashedPassword,
       phoneNumber: phoneNumber,
@@ -113,6 +114,7 @@ export async function registerAdmin(req, res) {
 
     res.status(201).json({
         _id: admin.id,
+        username: admin.username,
         email:admin.email,
         phoneNumber: admin.phoneNumber,
         isAdmin: admin.isAdmin,
