@@ -12,7 +12,7 @@ const bcryptSalt = process.env.BCRYPT_SALT;
 
 export async function createUser(req, res) {
   try {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
 
     const validationError = validateUserFields(email, password);
     if (validationError) {
@@ -28,12 +28,14 @@ export async function createUser(req, res) {
     const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
 
     const user = await Auth.create({
+      username,
       email,
       password: hashedPassword,
     });
     if (user) {
       res.status(201).json({
         _id: user.id,
+        username: user.username,
         email: user.email,
         token: generateToken(user.id),
       });
