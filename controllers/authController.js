@@ -16,13 +16,12 @@ export async function createUser(req, res) {
 
     const validationError = validateUserFields(email, password);
     if (validationError) {
-      res.status(400).json(validationError);
-      return; // Exit the function if there's a validation error
+      return res.status(400).json(validationError);
     }
 
     const userExists = await Auth.findOne({ email });
     if (userExists) {
-      res.status(403).json({ message: "Forbiden. User already exists" });
+      return res.status(403).json({ message: "Forbiden. User already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
@@ -53,20 +52,17 @@ export async function loginUser(req, res) {
 
     const validationError = validateLoginFields(email, password);
     if (validationError) {
-      res.status(400).json({ error: validationError });
-      return;
+      return res.status(400).json({ error: validationError });
     }
     const user = await Auth.findOne({ email });
 
     if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
+      return res.status(404).json({ message: "User not found" });
     }
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      res.status(401).json({ message: "Invalid password" });
-      return;
+      return res.status(401).json({ message: "Invalid password" });
     }
     const token = generateToken(user._id);
     res.status(200).json({
@@ -88,18 +84,16 @@ export async function registerAdmin(req, res) {
     password
   );
   if (validationError) {
-    res.status(400).json(validationError);
-    return; // Exit the function if there's a validation error
+    return res.status(400).json(validationError);
   }
   try {
     const existingPhoneNumber = await Auth.findOne({ phoneNumber });
     if (existingPhoneNumber) {
-      res.status(403).json({ message: "Forbidden. Phone number already exists" });
-      return;
+      return res.status(403).json({ message: "Forbidden. Phone number already exists" });
     }
     const userExists = await Auth.findOne({ email });
     if (userExists) {
-      res.status(403).json({ message: "Forbiden. User already exists" });
+      return res.status(403).json({ message: "Forbiden. User already exists" });
     }
   
     const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
@@ -136,20 +130,17 @@ export async function loginAdmin(req, res) {
   
       const validationError = validateLoginFields(email, password);
       if (validationError) {
-        res.status(400).json({ error: validationError });
-        return;
+        return res.status(400).json({ error: validationError });
       }
       const user = await Auth.findOne({ email });
   
       if (!user) {
-        res.status(404).json({ message: "User not found" });
-        return;
+        return res.status(404).json({ message: "User not found" });
       }
       const passwordMatch = await bcrypt.compare(password, user.password);
   
       if (!passwordMatch) {
-        res.status(401).json({ message: "Invalid password" });
-        return;
+        return res.status(401).json({ message: "Invalid password" });
       }
       const token = generateToken(user._id);
       res.status(200).json({

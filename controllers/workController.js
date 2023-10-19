@@ -27,7 +27,7 @@ export async function createWorkDone(req, res) {
       image: result.secure_url, // Save the Cloudinary URL to the works document
     });
     if (!product) {
-      res.status(400).json({ error: "An error occured when adding work item" });
+      return res.status(400).json({ error: "An error occured when adding work item" });
     }
     res.status(201).json({
       _id: product.id,
@@ -46,9 +46,7 @@ export async function updateWorkDone(req, res) {
     try {
       const product = await Work.findById(req.params.id);
       if (!product) {
-        res
-          .status(400)
-          .json({ error: "The work item you tried to update does not exist" });
+        return res.status(400).json({ error: "The work item you tried to update does not exist" });
       }
       const { title, description } = req.body;
       let image = product.image;
@@ -90,7 +88,6 @@ export async function updateWorkDone(req, res) {
       const item = await Work.findById(req.params.id);
       if (!item) {
         res.status(404).json({ error: "This item does not exist" })
-        // throw new Error("This product does not exist");
       } else {
         res.status(200).json(item);
       }
@@ -104,8 +101,7 @@ export async function updateWorkDone(req, res) {
     try {
       const item = await Work.findById(req.params.id);
       if (!item) {
-        res.status(404).json({error: "Item not found "})
-        // throw new Error("Product not found ");
+        return res.status(404).json({error: "Item not found "})
       } else {
         await Work.findByIdAndDelete(req.params.id);
         logger.info(`Item - ${item.id} deleted successfully`)

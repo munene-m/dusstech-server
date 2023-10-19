@@ -34,8 +34,7 @@ export async function createProduct(req, res) {
     image
   );
   if (validationError) {
-    res.status(400).json(validationError);
-    return; // Exit the function if there's a validation error
+    return res.status(400).json(validationError);
   }
 
   const result = await cloudinary.uploader.upload(image.path, {
@@ -53,7 +52,7 @@ export async function createProduct(req, res) {
       image: result.secure_url, // Save the Cloudinary URL to the product document
     });
     if (!product) {
-      res.status(400).json({ error: "An error occured when creating product" });
+      return res.status(400).json({ error: "An error occured when creating product" });
     }
     res.status(201).json({
       _id: product.id,
@@ -74,9 +73,7 @@ export async function updateProduct(req, res) {
   try {
     const product = await Products.findById(req.params.id);
     if (!product) {
-      res
-        .status(400)
-        .json({ error: "The product you tried to update does not exist" });
+      return res.status(400).json({ error: "The product you tried to update does not exist" });
     }
     const { name, description, quantity, price } = req.body;
     let image = product.image;
@@ -117,8 +114,7 @@ export async function getProduct(req, res) {
     try {
       const item = await Products.findById(req.params.id);
       if (!item) {
-        res.status(404).json({ error: "This product does not exist" })
-        // throw new Error("This product does not exist");
+        return res.status(404).json({ error: "This product does not exist" })
       } else {
         res.status(200).json(item);
       }
@@ -132,8 +128,7 @@ export async function getProduct(req, res) {
     try {
       const item = await Products.findById(req.params.id);
       if (!item) {
-        res.status(404).json({error: "Product not found "})
-        // throw new Error("Product not found ");
+        return res.status(404).json({error: "Product not found "})
       } else {
         await Products.findByIdAndDelete(req.params.id);
         logger.info(`Product - ${item.id} deleted successfully`)

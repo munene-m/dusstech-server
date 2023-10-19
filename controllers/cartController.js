@@ -8,18 +8,17 @@ export async function addCartItem(req, res) {
   const { customerId, productId, quantity } = req.body;
   const validationError = validateCartFields(customerId, productId);
   if (validationError) {
-    res.status(400).json(validationError);
-    return; // Exit the function if there's a validation error
+    return res.status(400).json(validationError);
   }
   try {
     const product = await Products.findById(productId);
     const customer = await Auth.findById(customerId);
 
     if (!product) {
-      res.status(404).json({ error: "Product does not exist" });
+      return res.status(404).json({ error: "Product does not exist" });
     }
     if (!customer) {
-      res.status(404).json({ error: "User does not exist" });
+      return res.status(404).json({ error: "User does not exist" });
     }
 
     const existingCartItem = await Cart.findOne({
@@ -28,9 +27,7 @@ export async function addCartItem(req, res) {
     });
 
     if (existingCartItem) {
-      return res
-        .status(400)
-        .json({ error: "This item is already in the cart" });
+      return res.status(400).json({ error: "This item is already in the cart" });
     }
 
     const item = new Cart({
@@ -48,9 +45,7 @@ export async function addCartItem(req, res) {
     logger.info(`Cart item added by: ${customer.email}`);
   } catch (error) {
     logger.error("An error occured when adding item to cart", error);
-    res
-      .status(400)
-      .json({ message: "An error occured when adding item to cart" });
+    res.status(400).json({ message: "An error occured when adding item to cart" });
   }
 }
 
@@ -58,7 +53,7 @@ export async function updateCart(req, res) {
     try {
       const cartItem = await Cart.findById(req.params.id);
       if (!cartItem) {
-        res.status(400).json({ error: "Cart item does not exist" });
+        return res.status(400).json({ error: "Cart item does not exist" });
       }
       const updatedProduct = await Cart.findByIdAndUpdate(
         req.params.id,
@@ -86,18 +81,15 @@ export async function updateCart(req, res) {
 
   export async function deleteItem(req, res) {
     try {
-      const itemId = req.params.id;
-      const item = await Cart.findById(itemId);
+      const item = await Cart.findById(req.params.id);
       if (!item) {
-        res.status(400).json("Item not found");
+        return res.status(400).json("Item not found");
       }
       await Cart.findByIdAndDelete(req.params.id);
       res.status(200).json({ message: "Item deleted" });
     } catch (error) {
       logger.error("An error occurred when deleting the cart item: ", error);
-      res
-        .status(400)
-        .json({ message: "An error occurred when deleting the cart item" });
+      res.status(400).json({ message: "An error occurred when deleting the cart item" });
     }
   }
 
@@ -115,8 +107,6 @@ export async function updateCart(req, res) {
       }
     } catch (error) {
       logger.error("An error occurred when deleting cart items: ", error);
-      res
-        .status(500)
-        .json({ message: "An error occurred when deleting cart items" });
+      res.status(400).json({ message: "An error occurred when deleting cart items" });
     }
   }
