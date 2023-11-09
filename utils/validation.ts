@@ -1,4 +1,6 @@
-export function validateUserFields(email, password) {
+import { ObjectId } from "mongoose";
+
+export function validateUserFields(email: string, password: string) {
   if (!email || !password) {
     switch (true) {
       case !email:
@@ -28,7 +30,7 @@ export function validateUserFields(email, password) {
   return null; // No validation error
 }
 
-export function validateLoginFields(email, password) {
+export function validateLoginFields(email: string, password: string) {
   if (!email || !password) {
     switch (true) {
       case !email:
@@ -42,7 +44,11 @@ export function validateLoginFields(email, password) {
   return null;
 }
 
-export function validateAdminRegistration(phoneNumber, email, password) {
+export function validateAdminRegistration(
+  phoneNumber: string,
+  email: string,
+  password: string
+) {
   if (!phoneNumber || !email || !password) {
     switch (true) {
       case !phoneNumber:
@@ -80,50 +86,56 @@ export function validateAdminRegistration(phoneNumber, email, password) {
   return null; // No validation error
 }
 
-export function validateProductFields(name, description, price, image) {
-  if (!name || !price || !description) {
-    switch (true) {
-      case !name:
-        return "Item name is required";
-      case !price:
-        return "Price is required";
-      case !description:
-        return "Item description is required";
-      case !image:
-        return "Image is required";
-      default:
-        return "Please enter all required fields";
+export function validateProductFields(
+  name: string,
+  description: string,
+  price: number,
+  image: Express.Multer.File | undefined
+) {
+  if (!name || !price || !description || !image) {
+    if (!name) {
+      return "Item name is required";
+    } else if (!price) {
+      return "Price is required";
+    } else if (!description) {
+      return "Item description is required";
+    } else if (!image) {
+      return "Image is required";
+    } else {
+      return "Please enter all required fields";
     }
   }
   return null;
 }
 
-export function validateWorkFields(title, description, image) {
-    if (!title || !description || !image) {
-        switch (true) {
-          case !title:
-            return "Item name is required";
-          case !image:
-            return "Image is required";
-          case !description:
-            return "Item description is required";
-          default:
-            return "Please enter all required fields";
-        }
-      }
-      return null;
+export function validateWorkFields(
+  title: string,
+  description: string,
+  image: Express.Multer.File | undefined
+) {
+  if (!title || !description || !image) {
+    if (!title) {
+      return "Item name is required";
+    } else if (!image) {
+      return "Image is required";
+    } else if (!description) {
+      return "Item description is required";
+    } else {
+      return "Please enter all required fields";
+    }
+  }
+  return null;
 }
 
-export function validateCartFields(customerId, productId) {
-    if (!customerId || !productId) {
-        switch (true) {
-          case !customerId:
-            return "customerId is required";
-          case !productId:
-            return "productId is required";
-          default:
-            return "Please enter all required fields";
-        }
-      }
-      return null;
+export function validateCartFields(customerId: ObjectId, productId: ObjectId) {
+  if (!customerId || !productId) {
+    if (!customerId) {
+      return "customerId is required";
+    } else if (!productId) {
+      return "productId is required";
+    } else {
+      return "Please enter all required fields";
+    }
+  }
+  return null;
 }

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    // "moduleResolution": "NodeNext",
+    "target": "ES2016",
+    "experimentalDecorators": true /* Enable experimental support for legacy experimental decorators. */,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
+    "rootDir": "./",
+    "outDir": "./dist",
+    "strict": true,
+    "noImplicitThis": false /* Enable error reporting when 'this' is given the type 'any'. */,
+    "typeRoots": ["types", "./node_modules/@types"],
+    "esModuleInterop": true,
+    "lib": ["ES2016", "dom"]
+  },
+  "include": ["index.ts", "*.d.ts", "types/express.d.ts", "types/env.d.ts"]
+}

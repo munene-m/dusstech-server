@@ -1,7 +1,14 @@
-import { createLogger, format, transports } from "winston"
+import { createLogger, format, transports } from "winston";
+import {
+  MongoDBTransportInstance,
+  MongoDBConnectionOptions,
+} from "winston-mongodb";
+const {
+  MongoDB,
+}: { MongoDB: MongoDBTransportInstance } = require("winston-mongodb");
 import winstonMongoDB from "winston-mongodb";
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 const logger = createLogger({
   level: "info",
@@ -10,16 +17,16 @@ const logger = createLogger({
     new transports.Console(), // Log to the console
     new transports.File({ filename: "logs/error.log", level: "error" }), // Log all errors to a file
     new transports.File({ filename: "logs/combined.log" }), // Log all levels to another file
-    new winstonMongoDB.MongoDB({
+    new MongoDB({
       level: "info", // Log level for this transport
-      db: process.env.MONGO_CONNECTION_URL, // MongoDB connection URL
+      db: process.env.MONGO_CONNECTION_URL || "", // MongoDB connection URL
       collection: "dusstech-logs", // Collection name for log entries
       options: {
         useUnifiedTopology: true, // Use the new MongoDB driver
       },
-      storeHost: true //store os.hostName() value
-    }),
+      storeHost: true, //store os.hostName() value
+    } as MongoDBConnectionOptions),
   ],
 });
 
-export default logger
+export default logger;

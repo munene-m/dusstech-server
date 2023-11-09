@@ -1,16 +1,18 @@
-import Auth from "../models/auth.js";
-import logger from "../helpers/logging.js";
+import Auth from "../models/auth";
+import { Request, Response } from "express";
+import logger from "../helpers/logging";
 import {
   validateUserFields,
   validateLoginFields,
   validateAdminRegistration,
-} from "../utils/validation.js";
+} from "../utils/validation";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { ObjectId } from "mongoose";
 
 const bcryptSalt = process.env.BCRYPT_SALT;
 
-export async function createUser(req, res) {
+export async function createUser(req: Request, res: Response) {
   try {
     const { username, email, password } = req.body;
 
@@ -46,7 +48,7 @@ export async function createUser(req, res) {
   }
 }
 
-export async function loginUser(req, res) {
+export async function loginUser(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
 
@@ -64,7 +66,7 @@ export async function loginUser(req, res) {
     if (!passwordMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    const token = generateToken(user._id);
+    const token = generateToken(user.id);
     res.status(200).json({
       _id: user.id,
       email: user.email,
@@ -76,7 +78,7 @@ export async function loginUser(req, res) {
   }
 }
 
-export async function registerAdmin(req, res) {
+export async function registerAdmin(req: Request, res: Response) {
   const { username, phoneNumber, email, password } = req.body;
   const validationError = validateAdminRegistration(
     phoneNumber,
@@ -89,13 +91,15 @@ export async function registerAdmin(req, res) {
   try {
     const existingPhoneNumber = await Auth.findOne({ phoneNumber });
     if (existingPhoneNumber) {
-      return res.status(403).json({ message: "Forbidden. Phone number already exists" });
+      return res
+        .status(403)
+        .json({ message: "Forbidden. Phone number already exists" });
     }
     const userExists = await Auth.findOne({ email });
     if (userExists) {
       return res.status(403).json({ message: "Forbiden. User already exists" });
     }
-  
+
     const hashedPassword = await bcrypt.hash(password, Number(bcryptSalt));
 
     const admin = new Auth({
@@ -103,18 +107,18 @@ export async function registerAdmin(req, res) {
       email: email,
       password: hashedPassword,
       phoneNumber: phoneNumber,
-      isAdmin: true
+      isAdmin: true,
     });
     await admin.save();
-    logger.info(`Admin account created - ${admin.email}`)
+    logger.info(`Admin account created - ${admin.email}`);
 
     res.status(201).json({
-        _id: admin.id,
-        username: admin.username,
-        email:admin.email,
-        phoneNumber: admin.phoneNumber,
-        isAdmin: admin.isAdmin,
-        token: generateToken(admin.id)
+      _id: admin.id,
+      username: admin.username,
+      email: admin.email,
+      phoneNumber: admin.phoneNumber,
+      isAdmin: admin.isAdmin,
+      token: generateToken(admin.id),
     });
   } catch (error) {
     logger.error("Error registering admin:", error);
@@ -124,39 +128,39 @@ export async function registerAdmin(req, res) {
   }
 }
 
-export async function loginAdmin(req, res) {
-    try {
-      const { email, password } = req.body;
-  
-      const validationError = validateLoginFields(email, password);
-      if (validationError) {
-        return res.status(400).json({ error: validationError });
-      }
-      const user = await Auth.findOne({ email });
-  
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      const passwordMatch = await bcrypt.compare(password, user.password);
-  
-      if (!passwordMatch) {
-        return res.status(401).json({ message: "Invalid password" });
-      }
-      const token = generateToken(user._id);
-      res.status(200).json({
-        _id: user.id,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        token,
-      });
-      logger.info(`Successful admin login by ${user.email}`);
-    } catch (error) {
-      res.status(400).json({ message: "An error occurred." });
-    }
-  }
+export async function loginAdmin(req: Request, res: Response) {
+  try {
+    const { email, password } = req.body;
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    const validationError = validateLoginFields(email, password);
+    if (validationError) {
+      return res.status(400).json({ error: validationError });
+    }
+    const user = await Auth.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+    const token = generateToken(user.id);
+    res.status(200).json({
+      _id: user.id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      token,
+    });
+    logger.info(`Successful admin login by ${user.email}`);
+  } catch (error) {
+    res.status(400).json({ message: "An error occurred." });
+  }
+}
+
+const generateToken = (id: ObjectId) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET || "", {
     expiresIn: "1d",
   });
 };
